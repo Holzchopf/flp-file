@@ -45,49 +45,17 @@ export class FLPProcessor {
   readEvents(buffer: ArrayBuffer): FLPEvent[] {
     const stream = new ArrayBufferStream(buffer)
     const events = []
-    loop: while (!stream.eof()) {
+    while (!stream.eof()) {
       const type = stream.readUint8()
       const event = new FLPEvent(type)
-      // chunks are categorized by size
-      if (event.type < 64) {
-        event.size = 1
-        event.bytes = stream.readBytes(1)
-        event.value = new DataView(event.bytes).getInt8(0)
-      } else if (event.type < 128) {
-        event.size = 2
-        event.bytes = stream.readBytes(2)
-        event.value = new DataView(event.bytes).getInt16(0, true)
-      } else if (event.type < 192) {
-        event.size = 4
-        event.bytes = stream.readBytes(4)
-        event.value = new DataView(event.bytes).getInt32(0, true)
+      // size is pre-defined for primitives
+      let size = event.maxByteLength
+      if (size) {
+        event.bytes = stream.readBytes(size)
       } else {
-        event.size = stream.readLeb128()
-        event.bytes = stream.readBytes(event.size)
-        // interpret texts
-        // for some reason, TextVersion seems to be ascii
-        if (event.typeName === 'TextVersion') {
-          event.value = new TextDecoder('ascii').decode(event.bytes)
-        }
-        // all other text fields (192 ... 209) seem to be utf-16le
-        else if (event.type < 210) {
-          event.value = new TextDecoder('utf-16le').decode(event.bytes)
-        }
-        //... and some of the data fields (>= 210) are too
-        else if (
-          event.typeName === 'DataRemoteCtrlFormula' ||
-          event.typeName === 'DataChanGroupName' ||
-          event.typeName === 'DataPlaylistTrackName' ||
-          event.typeName === 'DataArrangementName'
-        ) {
-          event.value = new TextDecoder('utf-16le').decode(event.bytes)
-        }
-        // remove null termination
-        if (event.value && typeof(event.value) === 'string' && event.value.endsWith('\x00')) {
-          event.value = event.value.slice(0, -1)
-        }
+        size = stream.readLeb128()
+        event.bytes = stream.readBytes(size)
       }
-
       events.push(event)
     }
     return events
@@ -134,27 +102,24 @@ export class FLPProcessor {
   writeEvents(events: FLPEvent[]): ArrayBuffer {
     const buffers: ArrayBuffer[] = []
 
-    let stream: ArrayBufferStream
-
     events.forEach((event) => {
-      // TODO (?) allow bytes to be derived from value
-
-      if (!event.bytes) return
-
-      // event byte size depends on event type
-      if (event.type < 192) {
-        const byteLength = event.bytes.byteLength
-        stream = new ArrayBufferStream(new ArrayBuffer(1 + byteLength))
-        stream.writeUint8(event.type)
-        stream.writeBytes(event.bytes)
+      const type = event.type
+      const bytes = event.bytes
+      // size is pre-defined for primitives
+      let size = event.maxByteLength
+      if (size) {
+        // total size is 1 (type) + event.size
+        const stream = new ArrayBufferStream(new ArrayBuffer(1 + bytes.byteLength))
+        stream.writeUint8(type)
+        stream.writeBytes(bytes)
         buffers.push(stream.buffer)
       } else {
-        // for these events, the size is stored in a variable length number (max 128 bit, shorten correctly afterwards)
-        const byteLength = event.bytes.byteLength
-        stream = new ArrayBufferStream(new ArrayBuffer(1 + byteLength + 16))
-        stream.writeUint8(event.type)
-        stream.writeLeb128(byteLength)
-        stream.writeBytes(event.bytes)
+        // total size is 1 (type) + max 16 (LEB128) + event.size
+        const stream = new ArrayBufferStream(new ArrayBuffer(1 + 16 + bytes.byteLength))
+        stream.writeUint8(type)
+        stream.writeLeb128(bytes.byteLength)
+        stream.writeBytes(bytes)
+        // only push used buffer
         buffers.push(stream.buffer.slice(0, stream.cursor))
       }
     })

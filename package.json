@@ -1,6 +1,6 @@
 {
   "name": "flp-processor",
-  "version": "0.1.0-f",
+  "version": "0.2.0-e",
   "description": "processes FL Studio project files",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
