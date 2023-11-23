@@ -65,10 +65,26 @@ export class FLPProcessor {
         event.size = stream.readLEB128()
         event.bytes = stream.readBytes(event.size)
         // interpret texts
-        if (event.type === 199) {
+        // for some reason, TextVersion seems to be ascii
+        if (event.typeName === 'TextVersion') {
           event.value = new TextDecoder('ascii').decode(event.bytes)
-        } else if (event.type < 210 || event.type > 230) {
+        }
+        // all other text fields (192 ... 209) seem to be utf-16le
+        else if (event.type < 210) {
           event.value = new TextDecoder('utf-16le').decode(event.bytes)
+        }
+        //... and some of the data fields (>= 210) are too
+        else if (
+          event.typeName === 'DataRemoteCtrlFormula' ||
+          event.typeName === 'DataChanGroupName' ||
+          event.typeName === 'DataPlaylistTrackName' ||
+          event.typeName === 'DataArrangementName'
+        ) {
+          event.value = new TextDecoder('utf-16le').decode(event.bytes)
+        }
+        // remove null termination
+        if (event.value && typeof(event.value) === 'string' && event.value.endsWith('\x00')) {
+          event.value = event.value.slice(0, -1)
         }
       }
 
