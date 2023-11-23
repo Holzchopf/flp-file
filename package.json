@@ -14,5 +14,8 @@
   "license": "ISC",
   "devDependencies": {
     "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "array-buffer-stream": "file:../array-buffer-stream/array-buffer-stream-0.1.0-a.tgz"
   }
 }
