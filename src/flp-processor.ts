@@ -12,8 +12,8 @@ export class FLPProcessor {
     const file = new FLPFile()
     // there are two chunks: a header, and data. In this order
     const [header, data] = this.readChunks(buffer)
-    file.header = header
-    file.data = data
+    file.header = header as FLPHeaderChunk
+    file.data = data as FLPDataChunk
     // interpret data chunk
     if (file.data) {
       file.data.events = this.readEvents(file.data.bytes)
@@ -24,9 +24,9 @@ export class FLPProcessor {
   /**
    * Reads all chunks in buffer
    */
-  readChunks(buffer: ArrayBuffer): [FLPHeaderChunk | undefined, FLPDataChunk | undefined] {
+  readChunks(buffer: ArrayBuffer): (FLPHeaderChunk | FLPDataChunk)[] {
     const stream = new ArrayBufferStream(buffer)
-    const chunks: [FLPHeaderChunk | undefined, FLPDataChunk | undefined] = [undefined, undefined]
+    const chunks: (FLPHeaderChunk | FLPDataChunk)[] = []
     for (let i = 0; !stream.eof(); i++) {
       const type = stream.readAsciiString(4)
       const size = stream.readUint32LE()
