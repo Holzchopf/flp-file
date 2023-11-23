@@ -1,10 +1,15 @@
 import { ArrayBufferStream } from "@holzchopf/array-buffer-stream"
 import { FLPEventType, FLPEventTypeName } from "./flp-event-type"
 
+/**
+ * Possible data types for event values.
+ */
 export type FLPDataType = 'int8' | 'int16' | 'int32' | 'uint8' | 'uint16' | 'uint32' | 'float32' | 'binary' | 'ascii' | 'utf-16le'
 
 /**
- * Data types for event's values. Falls back to `uint8` for event ids < 64, `uint16` for event ids < 128, `uint32` for event ids < 192, `utf-16le` for event ids < 210, `binary` otherwise
+ * Data types for event's values. Falls back to `uint8` for event ids < 64, `uint16` for event ids < 128, `uint32` for event ids < 192, `utf-16le` for event ids < 210, `binary` otherwise.
+ * 
+ * This is *not* a `const` - you can add or overwrite types for events in your project.
  */
 export let FLPEventValueDataType: Partial<Record<FLPEventTypeName, FLPDataType>> = {
   TextVersion: 'ascii',
@@ -14,27 +19,20 @@ export let FLPEventValueDataType: Partial<Record<FLPEventTypeName, FLPDataType>>
   DataArrangementName: 'utf-16le',
 }
 
+/**
+ * Class for events.
+ */
 export class FLPEvent {
   /**
-   * Numeric FLPEventType.
+   * Numeric [[FLPEventType]].
    */
   type: number
   /**
-   * Name of FLPEventType. Readonly.
+   * Name of [[FLPEventType]]. Readonly.
    */
   get typeName() {
     return FLPEventType.name(this.type)
   }
-  /**
-   * Byte size of event
-   */
-  // get size() {
-  //   // fixed size events have their defined size
-  //   const maxByteLength = this.maxByteLength
-  //   if (maxByteLength) return maxByteLength
-  //   // ... other events need to derive their size from bytes
-  //   return this.bytes.byteLength
-  // }
 
   /**
    * Primitive representation of event data. Data type varies by event type.

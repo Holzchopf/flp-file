@@ -1,14 +1,21 @@
 import { ArrayBufferStream, joinArrayBuffers } from "@holzchopf/array-buffer-stream"
 import { FLPChunk, FLPDataChunk, FLPHeaderChunk } from "./flp-chunk"
 
+/**
+ * Class representing an FL Studio file, which might be a project file (.flp). But other FL Studio files, like state files (.fst) have the same format.
+ * 
+ * Every FLPFile consists of two chunks:
+ * - A header chunk, containing file and global project information.
+ * - A data chunk, containing event data.
+ */
 export class FLPFile {
   /**
-   * Header chunk
+   * Header chunk.
    */
   header: FLPHeaderChunk
 
   /**
-   * Data chunk
+   * Data chunk.
    */
   data: FLPDataChunk
 

@@ -9,7 +9,7 @@
     "./lib"
   ],
   "scripts": {
-    "build": "rm -f ./lib/** && npx tsc && npm pack",
+    "build": "rm -f ./lib/** && npx tsc && npx zdoccer src && npm pack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -19,6 +19,7 @@
   "author": "Olivier Stuker",
   "license": "ISC",
   "devDependencies": {
+    "@zimatech/zdoccer": "^2.0.3",
     "typescript": "^5.2.2"
   },
   "dependencies": {

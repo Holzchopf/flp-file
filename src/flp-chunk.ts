@@ -2,11 +2,17 @@ import { ArrayBufferStream, joinArrayBuffers } from "@holzchopf/array-buffer-str
 import { FLPEvent } from "./flp-event"
 import { FLPFileFormat } from "./flp-file-format"
 
+/**
+ * The chunks in an FLPFile have a 4-byte ASCII-string indicated type. These are those types.
+ */
 export type FLPChunkType = 'FLhd' | 'FLdt'
 
+/**
+ * Class representing a chunk in an FLPFile.
+ */
 export abstract class FLPChunk {
   /**
-   * FLPChunkType
+   * Type of this chunk.
    */
   type: FLPChunkType
 
@@ -25,6 +31,9 @@ export abstract class FLPChunk {
   }
 }
 
+/**
+ * Specific class for the header chunk.
+ */
 export class FLPHeaderChunk extends FLPChunk {
   /**
    * Numeric file format identifier.
@@ -64,6 +73,9 @@ export class FLPHeaderChunk extends FLPChunk {
   }
 }
 
+/**
+ * Specific class for the data chunk.
+ */
 export class FLPDataChunk extends FLPChunk {
   /**
    * FLPEvents in this chunk.

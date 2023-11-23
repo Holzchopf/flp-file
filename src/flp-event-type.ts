@@ -165,15 +165,32 @@ const FLPEventTypeRaw = {
   DataArrangementName: 241,
 } as const
 
+/**
+ * Known event names.
+ */
 export type FLPEventTypeName = keyof typeof FLPEventTypeRaw
+/**
+ * Known event IDs.
+ */
 export type FLPEventTypeId = typeof FLPEventTypeRaw[FLPEventTypeName]
 
+/**
+ * Types of the events in an [[FLPDataChunk]].
+ */
 export const FLPEventType = {
   ...FLPEventTypeRaw,
+  /**
+   * Returns the name of a given event ID, or `'unknown'`.
+   * @param id Event ID.
+   */
   name: (id: number): FLPEventTypeName | 'unknown' => {
     const names = Object.keys(FLPEventTypeRaw) as FLPEventTypeName[]
     return names.find((n) => FLPEventTypeRaw[n] === id) ?? 'unknown'
   },
+  /**
+   * Returns the ID for a given event name, or `undefined`
+   * @param name Event name.
+   */
   byName: (name: string): FLPEventTypeId | undefined => {
     return FLPEventTypeRaw[name as FLPEventTypeName] ?? undefined
   }
