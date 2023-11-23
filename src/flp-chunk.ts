@@ -88,7 +88,7 @@ export class FLPDataChunk extends FLPChunk {
         // total size is 1 (type) + max 16 (LEB128) + event.size
         const stream = new ArrayBufferStream(new ArrayBuffer(1 + 16 + bytes.byteLength))
         stream.writeUint8(type)
-        stream.writeLeb128(bytes.byteLength)
+        stream.writeUleb128(bytes.byteLength)
         stream.writeBytes(bytes)
         // only push used buffer
         buffers.push(stream.buffer.slice(0, stream.cursor))
@@ -109,7 +109,7 @@ export class FLPDataChunk extends FLPChunk {
       if (size) {
         event.setBinary(stream.readBytes(size))
       } else {
-        size = stream.readLeb128()
+        size = stream.readUleb128()
         event.setBinary(stream.readBytes(size))
       }
       this.events.push(event)
