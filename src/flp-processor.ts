@@ -1,5 +1,5 @@
 import { ArrayBufferStream } from "array-buffer-stream"
-import { FLPDataChunk, FLPHeaderChunk } from "./flp-chunk"
+import { FLPChunk, FLPDataChunk, FLPHeaderChunk } from "./flp-chunk"
 import { FLPFile } from "./flp-file"
 import { FLPEvent } from "./flp-event"
 
@@ -91,5 +91,85 @@ export class FLPProcessor {
       events.push(event)
     }
     return events
+  }
+
+  /**
+   * Writes an FLP File to an ArrayBuffer
+   * @param file The FLP File to write.
+   */
+  writeFile(file: FLPFile): ArrayBuffer {
+    const buffers: ArrayBuffer[] = []
+
+    // build the data chunk from events
+    if (file.data) {
+      file.data.bytes = this.writeEvents(file.data.events)
+    }
+
+    // write chunks
+    if (file.header) buffers.push(this.writeChunk(file.header))
+    if (file.data) buffers.push(this.writeChunk(file.data))
+
+    // concatenate all those ArrayBuffers
+    const byteLength = buffers.reduce((acc, buffer) => {
+      acc += buffer.byteLength
+      return acc
+    }, 0)
+    const out = new Uint8Array(byteLength)
+    let offset = 0
+    buffers.forEach((buffer) => {
+      out.set(new Uint8Array(buffer), offset)
+      offset += buffer.byteLength
+    })
+    return out.buffer
+  }
+
+  writeChunk(chunk: FLPChunk): ArrayBuffer {
+    const stream = new ArrayBufferStream(new ArrayBuffer(chunk.type.length + 4 + chunk.bytes.byteLength))
+    stream.writeAsciiString(chunk.type)
+    stream.writeInt32(chunk.size, true)
+    stream.writeBytes(chunk.bytes)
+    return stream.buffer
+  }
+
+  writeEvents(events: FLPEvent[]): ArrayBuffer {
+    const buffers: ArrayBuffer[] = []
+
+    let stream: ArrayBufferStream
+
+    events.forEach((event) => {
+      // TODO (?) allow bytes to be derived from value
+
+      if (!event.bytes) return
+
+      // event byte size depends on event type
+      if (event.type < 192) {
+        const byteLength = event.bytes.byteLength
+        stream = new ArrayBufferStream(new ArrayBuffer(1 + byteLength))
+        stream.writeUint8(event.type)
+        stream.writeBytes(event.bytes)
+        buffers.push(stream.buffer)
+      } else {
+        // for these events, the size is stored in a variable length number (max 128 bit, shorten correctly afterwards)
+        const byteLength = event.bytes.byteLength
+        stream = new ArrayBufferStream(new ArrayBuffer(1 + byteLength + 16))
+        stream.writeUint8(event.type)
+        stream.writeLeb128(byteLength)
+        stream.writeBytes(event.bytes)
+        buffers.push(stream.buffer.slice(0, stream.cursor))
+      }
+    })
+
+    // concatenate all those ArrayBuffers
+    const byteLength = buffers.reduce((acc, buffer) => {
+      acc += buffer.byteLength
+      return acc
+    }, 0)
+    const out = new Uint8Array(byteLength)
+    let offset = 0
+    buffers.forEach((buffer) => {
+      out.set(new Uint8Array(buffer), offset)
+      offset += buffer.byteLength
+    })
+    return out.buffer
   }
 }
