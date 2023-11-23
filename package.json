@@ -1,7 +1,7 @@
 {
-  "name": "flp-file",
-  "version": "0.3.0-d",
-  "description": "processes FL Studio project files",
+  "name": "@holzchopf/flp-file",
+  "version": "1.0.0",
+  "description": "Reads and writes FL Studio project and state files.",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -14,9 +14,14 @@
   },
   "keywords": [
     "flp",
+    "fst",
     "flstudio"
   ],
-  "author": "Olivier Stuker",
+  "author": "Olivier Stuker <oli4stuker@hotmail.com> (https://www.holzchopf.ch/)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Holzchopf/flp-file.git"
+  },
   "license": "ISC",
   "devDependencies": {
     "@zimatech/zdoccer": "^2.0.3",
