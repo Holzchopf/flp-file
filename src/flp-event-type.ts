@@ -5,7 +5,7 @@ extended with https://github.com/Kermalis/KFLP/blob/main/KFLP/FLEvent.cs
 
 */
 
-export const FLPEventType: Record<number, string> = {
+const FLPEventTypeRaw = {
   0: 'ByteEnabled',
   1: 'ByteNoteOn',
   2: 'ByteVol',
@@ -163,4 +163,16 @@ export const FLPEventType: Record<number, string> = {
   238: 'DataNewPlaylistTrack',
   239: 'DataPlaylistTrackName',
   241: 'DataArrangementName',
+} as const
+
+export type FLPEventTypeId = keyof typeof FLPEventTypeRaw
+export type FLPEventTypeName = typeof FLPEventTypeRaw[keyof typeof FLPEventTypeRaw] | 'unknown'
+
+export const FLPEventType = {
+  ...FLPEventTypeRaw,
+  byId: (id: number) => (FLPEventTypeRaw as Record<number, FLPEventTypeName>)[id] ?? 'unknown',
+  byName: (name: string): number => {
+    const ids = Object.keys(FLPEventTypeRaw) as unknown as FLPEventTypeId[]
+    return ids.find((id) => FLPEventTypeRaw[id] === name) ?? -1
+  }
 }

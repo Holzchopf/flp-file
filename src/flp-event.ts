@@ -1,4 +1,4 @@
-import { FLPEventType } from "./flp-event-type"
+import { FLPEventType, FLPEventTypeName } from "./flp-event-type"
 
 export class FLPEvent {
   /**
@@ -8,7 +8,7 @@ export class FLPEvent {
   /**
    * Name of FLPEventType
    */
-  typeText: string
+  typeText: FLPEventTypeName
   /**
    * Byte size of event
    */
@@ -24,6 +24,6 @@ export class FLPEvent {
 
   constructor(type: number) {
     this.type = type
-    this.typeText = FLPEventType[type] ?? 'unknown'
+    this.typeText = FLPEventType.byId(type)
   }
 }
