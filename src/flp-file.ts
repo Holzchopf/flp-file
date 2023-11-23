@@ -39,7 +39,7 @@ export class FLPFile {
    */
   setBinary(buffer: ArrayBuffer) {
     const stream = new ArrayBufferStream(buffer)
-    while (!stream.eof) {
+    while (!stream.eof()) {
       const type = stream.readAsciiString(4)
       const size = stream.readUint32(true)
       const bytes = stream.readBytes(size)
