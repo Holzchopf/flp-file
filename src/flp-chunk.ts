@@ -1,4 +1,4 @@
-import { ArrayBufferStream, joinArrayBuffers } from "array-buffer-stream"
+import { ArrayBufferStream, joinArrayBuffers } from "@holzchopf/array-buffer-stream"
 import { FLPEvent } from "./flp-event"
 import { FLPFileFormat } from "./flp-file-format"
 

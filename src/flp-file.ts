@@ -1,4 +1,4 @@
-import { ArrayBufferStream, joinArrayBuffers } from "array-buffer-stream"
+import { ArrayBufferStream, joinArrayBuffers } from "@holzchopf/array-buffer-stream"
 import { FLPChunk, FLPDataChunk, FLPHeaderChunk } from "./flp-chunk"
 
 export class FLPFile {

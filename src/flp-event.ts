@@ -1,4 +1,4 @@
-import { ArrayBufferStream } from "array-buffer-stream"
+import { ArrayBufferStream } from "@holzchopf/array-buffer-stream"
 import { FLPEventType, FLPEventTypeName } from "./flp-event-type"
 
 export type FLPDataType = 'int8' | 'int16' | 'int32' | 'uint8' | 'uint16' | 'uint32' | 'float32' | 'binary' | 'ascii' | 'utf-16le'
