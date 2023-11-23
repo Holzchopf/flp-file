@@ -8,7 +8,7 @@ export class FLPEvent {
   /**
    * Name of FLPEventType
    */
-  typeText: FLPEventTypeName
+  typeName: FLPEventTypeName
   /**
    * Byte size of event
    */
@@ -24,6 +24,6 @@ export class FLPEvent {
 
   constructor(type: number) {
     this.type = type
-    this.typeText = FLPEventType.byId(type)
+    this.typeName = FLPEventType.byId(type)
   }
 }
