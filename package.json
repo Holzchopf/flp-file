@@ -1,0 +1,18 @@
+{
+  "name": "flp-processor",
+  "version": "0.1.0-a",
+  "description": "processes FL Studio project files",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "flp",
+    "flstudio"
+  ],
+  "author": "Olivier Stuker",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}
