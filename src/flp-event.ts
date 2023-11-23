@@ -28,18 +28,50 @@ export class FLPEvent {
   /**
    * Byte size of event
    */
-  get size() {
-    // fixed size events have their defined size
-    const maxByteLength = this.maxByteLength
-    if (maxByteLength) return maxByteLength
-    // ... other events need to derive their size from bytes
-    return this.bytes.byteLength
+  // get size() {
+  //   // fixed size events have their defined size
+  //   const maxByteLength = this.maxByteLength
+  //   if (maxByteLength) return maxByteLength
+  //   // ... other events need to derive their size from bytes
+  //   return this.bytes.byteLength
+  // }
+
+  /**
+   * Primitive representation of event data. Data type varies by event type.
+   */
+  value: number | string | ArrayBuffer
+
+  /**
+   * Returns the maximum allowed byte length depending on event type.
+   */
+  get maxByteLength() {
+    return (
+      this.type < 64 ? 1 :
+      this.type < 128 ? 2 :
+      this.type < 192 ? 4 :
+      undefined
+    )
+  }
+
+  constructor(type: number) {
+    this.type = type
+    const datatype = FLPEvent.getValueDataType(this.type)
+    // initial value
+    this.value = 0
+    //... as string
+    if (datatype === 'ascii' || datatype === 'utf-16le') {
+      this.value = ''
+    }
+    //... as binary data
+    else if (datatype === 'binary') {
+      this.value = new ArrayBuffer(0)
+    }
   }
 
   /**
-   * Byte data of event
+   * Creates the binary data for this event and returns it.
    */
-  get bytes(): ArrayBuffer {
+  getBinary(): ArrayBuffer {
     // binary data is already byte data
     if (this.value instanceof ArrayBuffer) return this.value
 
@@ -101,87 +133,60 @@ export class FLPEvent {
       }
     }
   }
-  set bytes(bytes: ArrayBuffer) {
+
+  /**
+   * Sets this event's values from binary data.
+   * @param buffer Binary data.
+   */
+  setBinary(buffer: ArrayBuffer) {
     const datatype = FLPEvent.getValueDataType(this.type)
     switch (datatype) {
       // fixed size primitives
       case 'int8': {
-        this.value = new DataView(bytes).getInt8(0)
+        this.value = new DataView(buffer).getInt8(0)
         break
       }
       case 'int16': {
-        this.value = new DataView(bytes).getInt16(0, true)
+        this.value = new DataView(buffer).getInt16(0, true)
         break
       }
       case 'int32': {
-        this.value = new DataView(bytes).getInt32(0, true)
+        this.value = new DataView(buffer).getInt32(0, true)
         break
       }
       case 'uint8': {
-        this.value = new DataView(bytes).getUint8(0)
+        this.value = new DataView(buffer).getUint8(0)
         break
       }
       case 'uint16': {
-        this.value = new DataView(bytes).getUint16(0, true)
+        this.value = new DataView(buffer).getUint16(0, true)
         break
       }
       case 'uint32': {
-        this.value = new DataView(bytes).getUint32(0, true)
+        this.value = new DataView(buffer).getUint32(0, true)
         break
       }
       case 'float32': {
-        this.value = new DataView(bytes).getFloat32(0, true)
+        this.value = new DataView(buffer).getFloat32(0, true)
         break
       }
       // variable sized primitives (strings)
       case 'ascii': {
-        const value = new TextDecoder('ascii').decode(bytes)
+        const value = new TextDecoder('ascii').decode(buffer)
         // remove zero terminator
         this.value = value.slice(0, -1)
         break
       }
       case 'utf-16le': {
-        const value = new TextDecoder('utf-16le').decode(bytes)
+        const value = new TextDecoder('utf-16le').decode(buffer)
         // remove zero terminator
         this.value = value.slice(0, -1)
         break
       }
       case 'binary': {
-        this.value = bytes
+        this.value = buffer
         break
       }
-    }
-  }
-
-  /**
-   * Primitive representation of event data. Data type varies by event type.
-   */
-  value: number | string | ArrayBuffer
-
-  /**
-   * Returns the maximum allowed byte length depending on event type.
-   */
-  get maxByteLength() {
-    return (
-      this.type < 64 ? 1 :
-      this.type < 128 ? 2 :
-      this.type < 192 ? 4 :
-      undefined
-    )
-  }
-
-  constructor(type: number) {
-    this.type = type
-    const datatype = FLPEvent.getValueDataType(this.type)
-    // initial value
-    this.value = 0
-    //... as string
-    if (datatype === 'ascii' || datatype === 'utf-16le') {
-      this.value = ''
-    }
-    //... as binary data
-    else if (datatype === 'binary') {
-      this.value = new ArrayBuffer(0)
     }
   }
 

@@ -10,8 +10,15 @@ export abstract class FLPChunk {
    */
   type: FLPChunkType
 
-  abstract get bytes(): ArrayBuffer
-  abstract set bytes(bytes: ArrayBuffer)
+  /**
+   * Creates the binary data for this chunk and returns it.
+   */
+  abstract getBinary(): ArrayBuffer
+  /**
+   * Sets this chunk's values from binary data.
+   * @param buffer Binary data.
+   */
+  abstract setBinary(buffer: ArrayBuffer): void
 
   constructor(type: FLPChunkType) {
     this.type = type
@@ -38,15 +45,15 @@ export class FLPHeaderChunk extends FLPChunk {
    */
   ppq: number = 96
 
-  get bytes(): ArrayBuffer {
+  getBinary(): ArrayBuffer {
     const stream = new ArrayBufferStream(new ArrayBuffer(6))
     stream.writeUint16(this.format, true)
     stream.writeUint16(this.channelCnt, true)
     stream.writeUint16(this.ppq, true)
     return stream.buffer
   }
-  set bytes(bytes: ArrayBuffer) {
-    const stream = new ArrayBufferStream(bytes)
+  setBinary(buffer: ArrayBuffer) {
+    const stream = new ArrayBufferStream(buffer)
     this.format = stream.readUint16(true)
     this.channelCnt = stream.readUint16(true)
     this.ppq = stream.readUint16(true)
@@ -63,12 +70,12 @@ export class FLPDataChunk extends FLPChunk {
    */
   events: FLPEvent[] = []
 
-  get bytes(): ArrayBuffer {
+  getBinary(): ArrayBuffer {
     const buffers: ArrayBuffer[] = []
 
     this.events.forEach((event) => {
       const type = event.type
-      const bytes = event.bytes
+      const bytes = event.getBinary()
       // size is pre-defined for primitives
       let size = event.maxByteLength
       if (size) {
@@ -91,8 +98,8 @@ export class FLPDataChunk extends FLPChunk {
     // concatenate all those ArrayBuffers
     return joinArrayBuffers(buffers)
   }
-  set bytes(bytes: ArrayBuffer) {
-    const stream = new ArrayBufferStream(bytes)
+  setBinary(buffer: ArrayBuffer) {
+    const stream = new ArrayBufferStream(buffer)
     this.events = []
     while (!stream.eof()) {
       const type = stream.readUint8()
@@ -100,10 +107,10 @@ export class FLPDataChunk extends FLPChunk {
       // size is pre-defined for primitives
       let size = event.maxByteLength
       if (size) {
-        event.bytes = stream.readBytes(size)
+        event.setBinary(stream.readBytes(size))
       } else {
         size = stream.readLeb128()
-        event.bytes = stream.readBytes(size)
+        event.setBinary(stream.readBytes(size))
       }
       this.events.push(event)
     }

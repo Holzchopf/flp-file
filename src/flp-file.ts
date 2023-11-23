@@ -12,12 +12,15 @@ export class FLPFile {
    */
   data: FLPDataChunk
 
-  get bytes(): ArrayBuffer {
+  /**
+   * Creates the binary data for this file and returns it.
+   */
+  getBinary(): ArrayBuffer {
     const buffers: ArrayBuffer[] = []
 
     const write = (chunk: FLPChunk) => {
       const type = chunk.type
-      const bytes = chunk.bytes
+      const bytes = chunk.getBinary()
       const stream = new ArrayBufferStream(new ArrayBuffer(4 + 4 + bytes.byteLength))
       stream.writeAsciiString(type)
       stream.writeInt32(bytes.byteLength, true)
@@ -30,16 +33,20 @@ export class FLPFile {
 
     return joinArrayBuffers(buffers)
   }
-  set bytes(bytes: ArrayBuffer) {
-    const stream = new ArrayBufferStream(bytes)
+  /**
+   * Sets this files's values from binary data.
+   * @param buffer Binary data.
+   */
+  setBinary(buffer: ArrayBuffer) {
+    const stream = new ArrayBufferStream(buffer)
     while (!stream.eof) {
       const type = stream.readAsciiString(4)
       const size = stream.readUint32(true)
       const bytes = stream.readBytes(size)
       if (type === 'FLhd') {
-        this.header.bytes = bytes
+        this.header.setBinary(bytes)
       } else if (type === 'FLdt') {
-        this.data.bytes = bytes
+        this.data.setBinary(bytes)
       }
     }
   }
