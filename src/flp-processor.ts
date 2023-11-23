@@ -29,7 +29,7 @@ export class FLPProcessor {
     const chunks: (FLPHeaderChunk | FLPDataChunk)[] = []
     for (let i = 0; !stream.eof(); i++) {
       const type = stream.readAsciiString(4)
-      const size = stream.readUint32LE()
+      const size = stream.readUint32(true)
       const bytes = stream.readBytes(size)
       const chunk = i === 0 ?
         new FLPHeaderChunk(type, size, bytes) :
@@ -62,7 +62,7 @@ export class FLPProcessor {
         event.bytes = stream.readBytes(4)
         event.value = new DataView(event.bytes).getInt32(0, true)
       } else {
-        event.size = stream.readLEB128()
+        event.size = stream.readLeb128()
         event.bytes = stream.readBytes(event.size)
         // interpret texts
         // for some reason, TextVersion seems to be ascii

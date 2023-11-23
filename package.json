@@ -1,6 +1,6 @@
 {
   "name": "flp-processor",
-  "version": "0.1.0-c",
+  "version": "0.1.0-d",
   "description": "processes FL Studio project files",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
@@ -20,6 +20,6 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "array-buffer-stream": "file:../array-buffer-stream/array-buffer-stream-0.1.0-a.tgz"
+    "array-buffer-stream": "file:../array-buffer-stream/array-buffer-stream-0.2.0-a.tgz"
   }
 }
