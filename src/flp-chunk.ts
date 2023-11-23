@@ -29,7 +29,7 @@ export class FLPHeaderChunk extends FLPChunk {
   /**
    * Numeric file format identifier.
    */
-  format: number = 0
+  format: number = -1
   /**
    * Name of file format.
    */
@@ -39,7 +39,7 @@ export class FLPHeaderChunk extends FLPChunk {
   /**
    * Number of channels.
    */
-  channelCnt: number = 1
+  channelCnt: number = 0
   /**
    * Project PPQ.
    */
